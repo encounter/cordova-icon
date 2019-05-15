@@ -5,7 +5,9 @@ var ig     = require('imagemagick');
 var colors = require('colors');
 var _      = require('underscore');
 var Q      = require('q');
+Q.map      = require('q-map').map;
 var argv   = require('minimist')(process.argv.slice(2));
+var os     = require('os');
 
 /**
  * @var {Object} settings - names of the config file and of the icon image
@@ -272,10 +274,9 @@ var generateIconsForPlatform = function (platform) {
   display.header('Generating Icons for ' + platform.name);
   var all = [];
   var icons = platform.icons;
-  icons.forEach(function (icon) {
-    all.push(generateIcon(platform, icon));
-  });
-  return Promise.all(all);
+  return Q.map(icons, function (icon) {
+    return generateIcon(platform, icon);
+  }, os.cpus().length);
 };
 
 /**
